@@ -1,0 +1,15 @@
+repos:
+- repo: local
+  hooks:
+  - id: gaia-canonical-index-generate
+    name: GAIA Canonical Index Generator
+    entry: python generate_canonical_index.py --write
+    language: python
+    files: ^GAIA-.*-v1\.0\.md$|^GAIA-Master-Canonical-Document-.*\.md$
+    pass_filenames: false
+  - id: gaia-canonical-hash-verify
+    name: GAIA Canonical SHA-256 Verifier
+    entry: python -m gaia_integrity.verify_all
+    language: python
+    files: ^GAIA-.*-v1\.0\.md$|^GAIA-Master-Canonical-Document-.*\.md$
+    pass_filenames: false

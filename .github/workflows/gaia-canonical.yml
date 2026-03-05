@@ -1,0 +1,23 @@
+name: GAIA Canonical Integrity
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  canonical:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Generate canonical index (must be clean)
+        run: |
+          python generate_canonical_index.py --write
+          git diff --exit-code
+      - name: Verify canonical hashes
+        run: |
+          python -m gaia_integrity.verify_all
