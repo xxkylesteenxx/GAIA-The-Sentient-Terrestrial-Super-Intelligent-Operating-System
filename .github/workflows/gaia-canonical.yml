@@ -1,9 +1,12 @@
 name: GAIA Canonical Integrity
 
 on:
-  workflow_dispatch:
   pull_request:
     branches: [ main ]
+  merge_group:
+
+permissions:
+  contents: read
 
 jobs:
   canonical:
