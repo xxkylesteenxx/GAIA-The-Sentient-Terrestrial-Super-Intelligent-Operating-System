@@ -10,7 +10,7 @@ MASTER_DOC = Path("GAIA-Master-Canonical-Document-v1.3.3.md")
 START = "<!-- CANONICAL_INDEX_START -->"
 END = "<!-- CANONICAL_INDEX_END -->"
 
-CANONICAL_GLOB = "GAIA-*-v1.0.md"
+CANONICAL_GLOB = "**/GAIA-*-v1.0.md"  # Changed: now searches subdirectories
 
 # Explicitly excluded / deprecated artifacts (kept for history, not canonical)
 EXCLUDE = {
@@ -32,7 +32,8 @@ def sha256_lf(path: Path) -> str:
 
 def iter_canonical_files(root: Path) -> list[Path]:
     files = []
-    for p in root.glob(CANONICAL_GLOB):
+    # Changed: use rglob for recursive search
+    for p in root.rglob("GAIA-*-v1.0.md"):
         if p.name in EXCLUDE:
             continue
         if p.is_file():
@@ -52,8 +53,14 @@ def make_table(files: list[Path]) -> str:
         sec = f"6.{base_section + i}"
         ver = "v1.0"
         sha = sha256_lf(f)
-        prio = "P0" if ("Economic" in f.name or "Security" in f.name or "Environmental" in f.name or "Performance" in f.name or "P0-Blockers" in f.name or "Inter-Core" in f.name) else "P0-P1"
-        rows.append(f"| {sec} | {f.name} | {ver} | {sha} | {prio} |\n")
+        # Enhanced priority detection for new P0 docs
+        prio = "P0" if any(keyword in f.name for keyword in [
+            "Economic", "Security", "Environmental", "Performance", 
+            "P0-Blockers", "Inter-Core", "Consciousness", "Actuation"
+        ]) else "P0-P1"
+        # Use relative path from repo root to show subdirectories
+        rel_path = str(f).replace("\\", "/")  # Normalize path separators
+        rows.append(f"| {sec} | {rel_path} | {ver} | {sha} | {prio} |\n")
 
     return header + "".join(rows)
 
